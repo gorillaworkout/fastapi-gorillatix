@@ -1,5 +1,7 @@
 from fastapi import FastAPI
-from app.routes import ticket
 
 app = FastAPI()
-app.include_router(ticket.router)
+
+@app.get("/")
+async def root():
+    return {"message": "Welcome to GorillaTix FastAPI backend!"}
