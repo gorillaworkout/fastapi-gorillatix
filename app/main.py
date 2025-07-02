@@ -12,10 +12,15 @@ print("Active DATABASE_URL:", os.getenv("DATABASE_URL"))
 
 app = FastAPI()
 
-# Middleware CORS
+
+origins = [
+    "http://localhost:3000",  # untuk local dev
+    "https://gorillatix.com",  # untuk production
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Ganti dengan frontend URL untuk production
+    allow_origins=origins,          # jangan pakai ["*"] kalau allow_credentials=True
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

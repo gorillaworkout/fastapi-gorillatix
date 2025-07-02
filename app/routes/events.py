@@ -2,8 +2,39 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.models.events import Events
 from app.database import get_db
+from pydantic import BaseModel  # ✅ tambahkan ini
+from datetime import datetime
+from typing import Optional
+
 
 router = APIRouter()
+
+class EventCreate(BaseModel):
+    address: str
+    category: str
+    createdAt: Optional[datetime] = None
+    date: str
+    description: str
+    endSellingDate: str
+    holdTickets: int
+    imageUrl: str
+    latitude: Optional[str]
+    longitude: Optional[str]
+    organizer: str
+    organizerDescription: str
+    price: int
+    slug: str
+    startSellingDate: str
+    status: str
+    stuckPending: int
+    ticketsAvailable: int
+    ticketsSold: int
+    time: str
+    timeSelling: str
+    title: str
+    updatedAt: Optional[datetime] = None
+    userid: str
+    venue: str
 
 @router.get("/")
 def get_all_events(db: Session = Depends(get_db)):
@@ -43,3 +74,14 @@ def get_all_events(db: Session = Depends(get_db)):
         }
         for e in events
     ]
+
+
+
+
+@router.post("/")
+def create_event(event: EventCreate, db: Session = Depends(get_db)):
+    new_event = Events(**event.dict())
+    db.add(new_event)
+    db.commit()
+    db.refresh(new_event)
+    return new_event
