@@ -2,10 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.models.events import Events
 from app.database import get_db
-from pydantic import BaseModel  # ✅ tambahkan ini
+from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional
-
 
 router = APIRouter()
 
@@ -16,7 +15,7 @@ class EventCreate(BaseModel):
     date: str
     description: str
     endSellingDate: str
-    holdTickets: int
+    holdTickets: int = 0
     imageUrl: str
     latitude: Optional[str]
     longitude: Optional[str]
@@ -26,15 +25,18 @@ class EventCreate(BaseModel):
     slug: str
     startSellingDate: str
     status: str
-    stuckPending: int
+    stuckPending: int = 0
     ticketsAvailable: int
     ticketsSold: int
     time: str
     timeSelling: str
     title: str
     updatedAt: Optional[datetime] = None
-    userid: str
+    userId: str = Field(alias="userId")
     venue: str
+
+    class Config:
+        allow_population_by_field_name = True  # biar camelCase bisa diterima
 
 @router.get("/")
 def get_all_events(db: Session = Depends(get_db)):
@@ -43,44 +45,13 @@ def get_all_events(db: Session = Depends(get_db)):
     if not events:
         raise HTTPException(status_code=404, detail="No events found")
 
-    return [
-        {
-            "id": e.id,
-            "address": e.address,
-            "category": e.category,
-            "createdAt": e.createdAt,
-            "date": e.date,
-            "description": e.description,
-            "endSellingDate": e.endSellingDate,
-            "holdTickets": e.holdTickets,
-            "imageUrl": e.imageUrl,
-            "latitude": e.latitude,
-            "longitude": e.longitude,
-            "organizer": e.organizer,
-            "organizerDescription": e.organizerDescription,
-            "price": e.price,
-            "slug": e.slug,
-            "startSellingDate": e.startSellingDate,
-            "status": e.status,
-            "stuckPending": e.stuckPending,
-            "ticketsAvailable": e.ticketsAvailable,
-            "ticketsSold": e.ticketsSold,
-            "time": e.time,
-            "timeSelling": e.timeSelling,
-            "title": e.title,
-            "updatedAt": e.updatedAt,
-            "userid": e.userid,
-            "venue": e.venue
-        }
-        for e in events
-    ]
-
-
-
+    return [e.__dict__ for e in events]  # simpel
 
 @router.post("/")
 def create_event(event: EventCreate, db: Session = Depends(get_db)):
-    new_event = Events(**event.dict())
+    print("📥 Incoming event payload:", event.dict(by_alias=True))  # Debug
+
+    new_event = Events(**event.dict(by_alias=True))
     db.add(new_event)
     db.commit()
     db.refresh(new_event)
