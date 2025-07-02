@@ -23,7 +23,7 @@
 #     finally:
 #         db.close()
 
-# # DATABASE_URL=postgresql://postgres:nZIcdbapwVvIpjuKAJbhezrkzMxlNvIs@shortline.proxy.rlwy.net:39440/railway # untuk local
+# # DATABASE_URL=postgresql://postgres:nZIcdbapwVvIpjuKAJbhezrkzMxlNvIs@shortline.proxy.rlwy.net:39440/railway #untuk local
 # #DATABASE_URL=postgresql://postgres:nZIcdbapwVvIpjuKAJbhezrkzMxlNvIs@postgres.railway.internal:5432/railway # ganti dari Railway PostgreSQL
 
 from sqlalchemy import create_engine
