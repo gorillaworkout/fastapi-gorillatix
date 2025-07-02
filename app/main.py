@@ -1,21 +1,30 @@
 import os
 import sys
 print(sys.path)
+
 from fastapi import FastAPI
 from sqlalchemy import text
 from app.database import SessionLocal, Base, engine
-from app.routes import events, tickets  # pastikan kamu juga punya tickets router
+from app.routes import events, tickets
+from fastapi.middleware.cors import CORSMiddleware
 
 print("Active DATABASE_URL:", os.getenv("DATABASE_URL"))
 
 app = FastAPI()
 
+# Middleware CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Ganti dengan frontend URL untuk production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Buat tabel jika belum ada
 Base.metadata.create_all(bind=engine)
 
-app.include_router(events.router, prefix="/events")
-app.include_router(tickets.router, prefix="/tickets")
-
+# Tes koneksi DB saat startup
 try:
     db = SessionLocal()
     db.execute(text("SELECT 1"))
@@ -26,3 +35,12 @@ except Exception as e:
     print("❌ Database connection failed:", e)
 finally:
     db.close()
+
+# Root endpoint
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to GorillaTix API"}
+
+# Routers
+app.include_router(events.router, prefix="/events")
+app.include_router(tickets.router, prefix="/tickets")
