@@ -29,5 +29,5 @@ class Events(Base):
     timeSelling = Column(Date)
     title = Column(String)
     updatedAt = Column(Date)
-    userid = Column(String)
+    userId = Column(String)
     venue = Column(String)
