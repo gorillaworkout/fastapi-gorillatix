@@ -9,3 +9,5 @@ venv/
 # VSCode or IDE
 .vscode/
 .idea/
+
+app/firebase/gorillatix-adminsdk.json

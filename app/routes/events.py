@@ -2,9 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.models.events import Events
 from app.database import get_db
+from app.auth.dependencies import admin_required
 from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional
+from app.models.user import User
 
 router = APIRouter()
 
@@ -36,44 +38,43 @@ class EventCreate(BaseModel):
     venue: str
 
     class Config:
-        validate_by_name = True# supaya camelCase dari frontend tetap diterima
+        validate_by_name = True
 
 @router.get("/")
 def get_all_events(db: Session = Depends(get_db)):
-    try:
-        events = db.query(Events).all()
-    except Exception as e:
-        print("❌ Database error:", e)
-        raise HTTPException(status_code=500, detail="Database connection error")
-
+    events = db.query(Events).all()
     if not events:
         raise HTTPException(status_code=404, detail="No events found")
-
     return [e.__dict__ for e in events]
 
 @router.post("/create")
 def create_event(event: EventCreate, db: Session = Depends(get_db)):
-    try:
-        print("📥 Incoming payload:", event.dict(by_alias=True))
-
-        new_event = Events(**event.dict(by_alias=True))
-        db.add(new_event)
-        db.commit()
-        db.refresh(new_event)
-
-        print("✅ Created event:", new_event.id)
-
-        return {
-            "message": "✅ Event successfully created",
-            "event": {
-                "id": new_event.id,
-                "title": new_event.title,
-                "date": new_event.date,
-                "venue": new_event.venue,
-                "status": new_event.status,
-            }
+    new_event = Events(**event.dict(by_alias=True))
+    db.add(new_event)
+    db.commit()
+    db.refresh(new_event)
+    return {
+        "message": "✅ Event successfully created",
+        "event": {
+            "id": new_event.id,
+            "title": new_event.title,
+            "date": new_event.date,
+            "venue": new_event.venue,
+            "status": new_event.status,
         }
+    }
 
-    except Exception as e:
-        print("❌ Error while creating event:", e)
-        raise HTTPException(status_code=500, detail="Failed to create event")
+@router.delete("/{event_id}")
+def delete_event(
+    event_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(admin_required),  # hanya admin boleh akses
+):
+    event = db.query(Events).filter(Events.id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+
+    db.delete(event)
+    db.commit()
+
+    return {"message": f"Event with ID {event_id} deleted successfully"}
