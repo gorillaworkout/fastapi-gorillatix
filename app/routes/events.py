@@ -55,4 +55,14 @@ def create_event(event: EventCreate, db: Session = Depends(get_db)):
     db.add(new_event)
     db.commit()
     db.refresh(new_event)
-    return new_event
+
+    return {
+        "message": "✅ Event successfully created",
+        "event": {
+            "id": new_event.id,
+            "title": new_event.title,
+            "date": new_event.date,
+            "venue": new_event.venue,
+            "status": new_event.status,
+        }
+    }
