@@ -38,7 +38,7 @@ class EventCreate(BaseModel):
     class Config:
         validate_by_name = True# supaya camelCase dari frontend tetap diterima
 
-@router.get("/")
+@router.get("")
 def get_all_events(db: Session = Depends(get_db)):
     try:
         events = db.query(Events).all()
