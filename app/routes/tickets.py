@@ -12,6 +12,6 @@ def get_db():
     finally:
         db.close()
 
-@router.get("/tickets")
+@router.get("/")  # <-- ini harus /
 def read_tickets(db: Session = Depends(get_db)):
     return db.query(Ticket).all()
