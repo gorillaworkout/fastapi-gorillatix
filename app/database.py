@@ -10,7 +10,7 @@ load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env")
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Debug: print URL
-print("📦 DATABASE_URL:", DATABASE_URL)
+# print("📦 DATABASE_URL:", DATABASE_URL)
 
 # ✅ Tambahkan pool_pre_ping dan SSL mode untuk Railway
 engine = create_engine(
