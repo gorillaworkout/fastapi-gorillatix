@@ -37,9 +37,3 @@ app.include_router(tickets.router, prefix="/tickets", tags=["Tickets"])
 app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 
 import json
-
-with open("app/firebase/gorillatix-adminsdk.json") as f:
-    data = json.load(f)
-
-env_ready = json.dumps(data)
-print(env_ready)
