@@ -1,19 +1,28 @@
+import os
+import json
+from dotenv import load_dotenv
 import firebase_admin
 from firebase_admin import credentials, auth
-from pathlib import Path
 
-cred_path = Path(__file__).parent.parent / "firebase" / "gorillatix-adminsdk.json"
-print(f"Using Firebase Admin SDK JSON path: {cred_path}")
+load_dotenv()
 
-cred = credentials.Certificate(str(cred_path))
-firebase_admin.initialize_app(cred)
+firebase_cred_json = os.getenv("FIREBASE_CREDENTIALS")
+
+if not firebase_cred_json:
+    raise ValueError("FIREBASE_CREDENTIALS not found in environment")
+
+# Tidak perlu replace apa-apa kalau pakai json.dumps saat generate
+try:
+    cred_dict = json.loads(firebase_cred_json)
+    cred = credentials.Certificate(cred_dict)
+    firebase_admin.initialize_app(cred)
+except Exception as e:
+    print("❌ Error initializing Firebase Admin SDK:", e)
+    raise e
 
 def verify_firebase_token(id_token: str):
     try:
-        decoded_token = auth.verify_id_token(id_token)
-        print("Token received:", id_token)
-        return decoded_token
+        return auth.verify_id_token(id_token)
     except Exception as e:
-        print("Firebase token verification failed:", e)
+        print("❌ Firebase token verification failed:", e)
         return None
-# eyJhbGciOiJSUzI1NiIsImtpZCI6Ijg3NzQ4NTAwMmYwNWJlMDI2N2VmNDU5ZjViNTEzNTMzYjVjNThjMTIiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiQmF5dSBEYXJtYXdhbiIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NJbVBReXFpdjFDZ1dGQ0lLLUE5cGdtYWtDU05kYVpiVWFTZlMySXhNeHJwV1BhMEZOUz1zOTYtYyIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9nb3JpbGxhdGl4IiwiYXVkIjoiZ29yaWxsYXRpeCIsImF1dGhfdGltZSI6MTc1MTQ4NzkwMCwidXNlcl9pZCI6IkVyQ0V3V3l4Y1ZXVHcxREJIWnM0T040SG1CSDMiLCJzdWIiOiJFckNFd1d5eGNWV1R3MURCSFpzNE9ONEhtQkgzIiwiaWF0IjoxNzUxNDg3OTAwLCJleHAiOjE3NTE0OTE1MDAsImVtYWlsIjoiZGFybWF3YW5iYXl1MUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJnb29nbGUuY29tIjpbIjExMjk0OTUzMzI2OTUwMjIyMDQzMSJdLCJlbWFpbCI6WyJkYXJtYXdhbmJheXUxQGdtYWlsLmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6Imdvb2dsZS5jb20ifX0.mmIihffMQBZzqGqT2axHFZlLL4WhG4VwSvLx5-FpWj6dpyJOEN5SUm1Kk7eWXd_I0bIUAnnRzPAM0qbKCRAPlq7cbpQ_uuTOf9ehueq8D7tMnkm_3GHP1OIyPnDtfwk7YwuyWpu9sk9fySsDkI28QEhmopJKMX2edE-j31jGnvcsELvulhxtPnVsBsbDHvZ5dW1iSVkP66iwmNnOmv52RJ-n6odtJ7ZjrCYDcqZpWJhzoO9obx6-K4voR8wF_rxUjXhFsR5F-J6yu8iHViaTK1ZHe3IsIIakp5VMCUYcz2omWrSkbguehyed2waClr0uC6Ridh4e6zE3cWKD2N903g
