@@ -43,9 +43,8 @@ class EventCreate(BaseModel):
 @router.get("/")
 def get_all_events(db: Session = Depends(get_db)):
     events = db.query(Events).all()
-    if not events:
-        raise HTTPException(status_code=404, detail="No events found")
-    return [e.__dict__ for e in events]
+    return [e.__dict__ for e in events]  # Tetap return [] jika kosong
+
 
 @router.post("/create")
 def create_event(event: EventCreate, db: Session = Depends(get_db)):
