@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models.user import User
+from app.models.users import Users
 from app.auth.jwt import create_access_token
 from pydantic import BaseModel
 from passlib.context import CryptContext

@@ -6,7 +6,7 @@ from app.auth.dependencies import admin_required
 from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional
-from app.models.user import User
+from app.models.users import Users
 
 router = APIRouter()
 
@@ -67,7 +67,7 @@ def create_event(event: EventCreate, db: Session = Depends(get_db)):
 def delete_event(
     event_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(admin_required),  # hanya admin boleh akses
+    current_user: Users = Depends(admin_required),  # hanya admin boleh akses
 ):
     event = db.query(Events).filter(Events.id == event_id).first()
     if not event:
